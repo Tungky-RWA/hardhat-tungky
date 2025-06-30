@@ -2,10 +2,18 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 import "./BrandNFT.sol"; // Import BrandNFT kontrak yang akan dideploy
 
 // Kontrak utama platform yang akan mendeploy kontrak NFT untuk setiap brand
-contract ContractFactory is Ownable {
+contract ContractFactory is Ownable, AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN");
+
+    modifier onlyAdminRole {
+      require(hasRole(ADMIN_ROLE, msg.sender), "Only Admin role can call this function");
+      _;
+    }
 
     // Struktur untuk menyimpan informasi setiap brand yang terdaftar
     struct BrandInfo {
@@ -25,11 +33,14 @@ contract ContractFactory is Ownable {
     event BrandStatusUpdated(address indexed brandWallet, bool newStatus);
     event BrandLegalStatusUpdated(address indexed brandWallet, bool newLegalStatus); // <-- Tambahan: Event untuk update status legal
 
-    constructor() Ownable(msg.sender) {}
+    constructor() Ownable(msg.sender) {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
 
     // Fungsi untuk mendaftarkan Brand baru
     // Hanya admin platform yang bisa memanggil fungsi ini
-    function registerBrand(string memory _brandName, string memory _nftSymbol, address _brandWallet) public onlyOwner {
+    function registerBrand(string memory _brandName, string memory _nftSymbol, address _brandWallet) public {
         require(_brandWallet != address(0), "Invalid brand wallet address");
         require(brands[_brandWallet].nftContractAddress == address(0), "Brand already registered");
 
@@ -51,7 +62,7 @@ contract ContractFactory is Ownable {
 
     // Fungsi baru untuk memperbarui status verifikasi legalitas Brand
     // Hanya admin platform yang bisa memanggil fungsi ini
-    function updateBrandLegalStatus(address _brandWallet, bool _isLegalVerified) public onlyOwner {
+    function updateBrandLegalStatus(address _brandWallet, bool _isLegalVerified) public onlyAdminRole {
         require(brands[_brandWallet].nftContractAddress == address(0) || brands[_brandWallet].isLegalVerified != _isLegalVerified, "No change in legal status or NFT contract already deployed.");
         require(brands[_brandWallet].brandWallet != address(0), "Brand not registered."); // Pastikan brand terdaftar
 
@@ -84,7 +95,7 @@ contract ContractFactory is Ownable {
 
     // Fungsi untuk mengupdate status aktif Brand (misalnya, menonaktifkan jika ada masalah)
     // Hanya admin platform yang bisa memanggil fungsi ini
-    function updateBrandStatus(address _brandWallet, bool _isActive) public onlyOwner {
+    function updateBrandStatus(address _brandWallet, bool _isActive) public onlyAdminRole {
         require(brands[_brandWallet].brandWallet != address(0), "Brand not registered");
         require(brands[_brandWallet].isLegalVerified, "Cannot change status of unverified brand."); // <-- Tambahan: hanya brand terverifikasi yang bisa diubah statusnya
         brands[_brandWallet].isActive = _isActive;
