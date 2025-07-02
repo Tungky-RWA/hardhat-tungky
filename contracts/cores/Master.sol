@@ -32,9 +32,9 @@ contract Master is Ownable, AccessControl, IMaster {
         brandMetadata.mint(_brandWallet, _uri);
     }
     
-    function approveBrand(address _brandWallet) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function approveBrand(address _brandWallet, address _minterWallet) external onlyRole(DEFAULT_ADMIN_ROLE) {
          // Menjalankan token factory untuk membuat NFT yang baru dari kode ini.
-        address brandSC = contractFactory.approveBrand(_brandWallet, couponAddress);
+        address brandSC = contractFactory.approveBrand(_brandWallet, _minterWallet, couponAddress);
         coupon.mintCoupon(brandSC, 30);
         coupon.grantRole(DEFAULT_ADMIN_ROLE, brandSC);
     }

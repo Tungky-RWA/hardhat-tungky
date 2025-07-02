@@ -10,7 +10,7 @@ interface IMaster {
         string memory _uri
     ) external;
     
-    function approveBrand(address _brandWallet) external;
+    function approveBrand(address _brandWallet, address _minterWallet) external;
 
     function mintCoupon(address _to, uint amount) external;
 }
