@@ -1,3 +1,6 @@
 {
-  "Deploy#ContractFactory": "0x03Dba94Cee749c45209d3B8BbC55D1aA4d4cdf6a"
+  "Deploy#BrandMetadata": "0x410e94CA67B64567FFc104473337A452ebE12bAe",
+  "Deploy#ContractFactory": "0x45FF838c0160FB1E1675074C8552D22dD9E87c44",
+  "Deploy#Coupon": "0xC7d443eC92153eDe1b84d1Cb5C6AB0290392Ba6D",
+  "Deploy#Master": "0x129645B5c1E77663d2f17ce326DB255Aa9D46397"
 }

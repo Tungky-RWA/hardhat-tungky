@@ -4,11 +4,18 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const LockModule = buildModule("Deploy", (m) => {
-  const mCoupon = m.contract("Coupon");
-  const mBrandMetadata = m.contract("BrandMetadata");
-  const mFactory = m.contract("ContractFactory");
-  const mMaster = m.contract("Master")
-  return { contractFactory };
+  const coupon = m.contract("Coupon");
+  const brandMetadata = m.contract("BrandMetadata");
+  const contractFactory = m.contract("ContractFactory");
+  const master = m.contract("Master", [coupon, brandMetadata, contractFactory]) //cara mengambil address gimana?
+  
+  const DEFAUlT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+  m.call(coupon, "grantRole", [DEFAUlT_ADMIN_ROLE, master]);
+  m.call(brandMetadata, "grantRole", [DEFAUlT_ADMIN_ROLE, master]);
+  m.call(contractFactory, "grantRole", [DEFAUlT_ADMIN_ROLE, master]);
+  
+  return { coupon, brandMetadata, contractFactory, master };
 });
 
 export default LockModule;
