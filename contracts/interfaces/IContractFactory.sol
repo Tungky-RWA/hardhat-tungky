@@ -23,10 +23,8 @@ interface IContractFactory {
 
     function registerBrand(string memory _brandName, string memory _nftSymbol, address _brandWallet) external;
 
-    function approveBrand(address _brandWallet, address couponContract) external returns (address);
+    function approveBrand(address _brandWallet, address _minterWallet, address couponContract) external returns (address);
 
     function getBrandNFTContractAddress(address _brandWallet) external view returns (address);
-
-    function getBrandInfo(address _brandWallet) external view returns (BrandInfo memory); 
 
 }

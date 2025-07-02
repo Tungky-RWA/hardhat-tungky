@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 import "./BrandNFT.sol";
 import "./Coupon.sol";
@@ -11,11 +12,13 @@ import "../interfaces/IContractFactory.sol";
 
 // Kontrak utama platform yang akan mendeploy kontrak NFT untuk setiap brand
 contract ContractFactory is AccessControl, IContractFactory {
+    address public immutable brandNFTImplementation;
 
     mapping(address => BrandInfo) public brands;
 
-    constructor() {
+    constructor(address _implementationAddress) {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        brandNFTImplementation = _implementationAddress;
     }
 
     // Fungsi untuk mendaftarkan Brand baru
@@ -38,23 +41,29 @@ contract ContractFactory is AccessControl, IContractFactory {
 
     // Fungsi baru untuk memperbarui status verifikasi legalitas Brand
     // Hanya admin platform yang bisa memanggil fungsi ini
-    function approveBrand(address _brandWallet, address couponContract) external onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
+    function approveBrand(address _brandWallet, address _minterWallet, address couponContract) external onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         require(brands[_brandWallet].nftContractAddress == address(0) || brands[_brandWallet].isLegalVerified == false, "No change in legal status or NFT contract already deployed.");
 
         brands[_brandWallet].isLegalVerified = true;
-        // emit BrandLegalStatusUpdated(_brandWallet, true);
-
-        // Jika legalitas sudah terverifikasi dan kontrak NFT belum dideploy, deploy sekarang
-        string memory brandName = brands[_brandWallet].name;
-        string memory nftSymbol = brands[_brandWallet].nftSymbol; // Kamu mungkin perlu menyimpan simbol ini juga saat registerBrand
 
         // Deploy kontrak BrandNFT baru dan transfer ownership ke _brandWallet
-        BrandNFT newBrandNFT = new BrandNFT(brandName, nftSymbol, _brandWallet, couponContract);
-        brands[_brandWallet].nftContractAddress = address(newBrandNFT);
+        bytes memory initData = abi.encodeCall(
+            BrandNFT.initialize,
+            (brands[_brandWallet].name, brands[_brandWallet].nftSymbol, _brandWallet, _minterWallet, couponContract)
+        );
+
+        ERC1967Proxy newProxy = new ERC1967Proxy(
+            brandNFTImplementation,
+            initData
+        );
+
+        address newBrandNFTAddress = address(newProxy);
+        // BrandNFT newBrandNFT = new BrandNFT(brands[_brandWallet].name, brands[_brandWallet].nftSymbol, _brandWallet, _minterWallet, couponContract);
+        brands[_brandWallet].nftContractAddress = address(newBrandNFTAddress);
         brands[_brandWallet].isActive = true; // Aktifkan brand setelah kontrak NFT dideploy
 
-        emit BrandRegistered(_brandWallet, address(newBrandNFT), brandName, true); // Emit ulang dengan informasi lengkap
-        return address(newBrandNFT);
+        emit BrandRegistered(_brandWallet, address(newBrandNFTAddress), brands[_brandWallet].name, true); // Emit ulang dengan informasi lengkap
+        return address(newBrandNFTAddress);
     }
 
     // Fungsi untuk mendapatkan alamat kontrak NFT dari Brand tertentu
