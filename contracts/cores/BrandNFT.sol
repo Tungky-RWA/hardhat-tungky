@@ -29,7 +29,7 @@ contract BrandNFT is ERC721URIStorage, ERC1155Holder, AccessControl, IBrandNFT {
     }
 
     function preMint(uint256 _tokenId, string memory _uri) external {
-        require(couponContract.balanceOf(address(this), 1) > 0, "insufficient coupon");
+        require(couponContract.balanceOf(address(this), 1) > 0 && bytes(preMints[_tokenId]).length == 0, "insufficient coupon or Invalid");
         couponContract.burn(address(this), 1, 1);
         preMints[_tokenId] = _uri;
     }
