@@ -26,7 +26,6 @@ contract ContractFactory is Ownable, AccessControl, IContractFactory {
     // Fungsi untuk mendaftarkan Brand baru
     // Hanya admin platform yang bisa memanggil fungsi ini
     function registerBrand(string memory _brandName, string memory _nftSymbol, address _brandWallet) external {
-        require(_brandWallet != address(0), "Invalid brand wallet address");
         require(brands[_brandWallet].nftContractAddress == address(0), "Brand already registered");
 
         brands[_brandWallet] = BrandInfo({
@@ -46,7 +45,6 @@ contract ContractFactory is Ownable, AccessControl, IContractFactory {
     // Hanya admin platform yang bisa memanggil fungsi ini
     function approveBrand(address _brandWallet, address couponContract) external onlyRole(DEFAULT_ADMIN_ROLE) returns (address) {
         require(brands[_brandWallet].nftContractAddress == address(0) || brands[_brandWallet].isLegalVerified == false, "No change in legal status or NFT contract already deployed.");
-        require(brands[_brandWallet].brandWallet != address(0), "Brand not registered."); // Pastikan brand terdaftar
 
         brands[_brandWallet].isLegalVerified = true;
         // emit BrandLegalStatusUpdated(_brandWallet, true);
