@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import "./BrandNFT.sol";
@@ -11,15 +10,11 @@ import "./BrandMetadata.sol";
 import "../interfaces/IContractFactory.sol";
 
 // Kontrak utama platform yang akan mendeploy kontrak NFT untuk setiap brand
-contract ContractFactory is Ownable, AccessControl, IContractFactory {
+contract ContractFactory is AccessControl, IContractFactory {
 
     mapping(address => BrandInfo) public brands;
 
-    // event BrandRegistered(address indexed brandWallet, address indexed nftContractAddress, string name, bool isLegalVerified); // Update event
-    // event BrandStatusUpdated(address indexed brandWallet, bool newStatus);
-    // event BrandLegalStatusUpdated(address indexed brandWallet, bool newLegalStatus);
-
-    constructor() Ownable(msg.sender) {
+    constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 

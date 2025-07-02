@@ -4,7 +4,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const LockModule = buildModule("Deploy", (m) => {
-  const contractFactory = m.contract("ContractFactory");
+  const mCoupon = m.contract("Coupon");
+  const mBrandMetadata = m.contract("BrandMetadata");
+  const mFactory = m.contract("ContractFactory");
+  const mMaster = m.contract("Master")
   return { contractFactory };
 });
 
