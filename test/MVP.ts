@@ -4,7 +4,6 @@ import {
 } from "@nomicfoundation/hardhat-toolbox-viem/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
-import { keccak256, encodePacked, toBytes } from "viem";
 
 describe("All Contract", function () {
   // We define a fixture to reuse the same setup in every test.
