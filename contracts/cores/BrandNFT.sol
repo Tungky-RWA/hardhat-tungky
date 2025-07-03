@@ -15,7 +15,13 @@ contract BrandNFT is Initializable, ERC721URIStorageUpgradeable, ERC1155HolderUp
 
     mapping(uint256 => string) preMints;
 
-    event SimpleAccountInitialized(address indexed owner, address contractAddress);
+    event BrandNFTInitialized(address indexed owner, address contractAddress);
+    event PreMintedNFT(address indexed smartContractWallet, uint256 indexed tokenId, string uri);
+    event PreMintNFTUpdated(
+        uint256 indexed oldTokenId,
+        uint256 indexed newTokenId,
+        string newUri
+    );
 
     constructor() {
         // 3. Constructor HARUS dikosongkan untuk pola proxy/clone
@@ -39,21 +45,25 @@ contract BrandNFT is Initializable, ERC721URIStorageUpgradeable, ERC1155HolderUp
         _grantRole(DEFAULT_ADMIN_ROLE, _owner);
         _grantRole(MINTER_ROLE, _minter);
 
-        emit SimpleAccountInitialized(_owner, address(this));
+        emit BrandNFTInitialized(_owner, address(this));
     }
 
     function preMint(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(couponContract.balanceOf(address(this), 1) > 0 && bytes(preMints[_tokenId]).length == 0, "insufficient coupon or Invalid");
         couponContract.burn(address(this), 1, 1);
         preMints[_tokenId] = _uri;
+
+        emit PreMintedNFT(address(this), _tokenId, _uri);
     }
 
     function updatePreMint(uint256 _tokenId, uint256 _newTokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (_newTokenId > 0) {
+        if (_newTokenId > 0 && _newTokenId != _tokenId) {
           preMints[_newTokenId] = _uri;
           delete preMints[_tokenId];
+          emit PreMintNFTUpdated(_tokenId, _newTokenId, _uri);
         } else {
           preMints[_tokenId] = _uri;
+          emit PreMintNFTUpdated(_tokenId, _tokenId, _uri);
         }
     }
 
