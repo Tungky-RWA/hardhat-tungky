@@ -21,6 +21,7 @@ contract BrandMetadata is ERC721Holder, ERC721URIStorage, AccessControl, IBrandM
 
     function mint(address brandWallet, string memory uri) external {
         require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "Only Admin can mint");
+        require(brandIds[brandWallet] > 0, "Already Registered");
         _safeMint(address(this), BRAND_ID);
         _setTokenURI(BRAND_ID, uri);
         brandIds[brandWallet];
