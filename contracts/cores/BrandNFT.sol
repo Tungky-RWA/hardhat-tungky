@@ -50,6 +50,7 @@ contract BrandNFT is Initializable, ERC721URIStorageUpgradeable, ERC1155HolderUp
 
     function preMint(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(couponContract.balanceOf(address(this), 1) > 0 && bytes(preMints[_tokenId]).length == 0, "insufficient coupon or Invalid");
+        require(_ownerOf(_tokenId) == address(0), "NFT is already exist!");
         couponContract.burn(address(this), 1, 1);
         preMints[_tokenId] = _uri;
 
@@ -57,6 +58,8 @@ contract BrandNFT is Initializable, ERC721URIStorageUpgradeable, ERC1155HolderUp
     }
 
     function updatePreMint(uint256 _tokenId, uint256 _newTokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        string memory uri = preMints[_tokenId];
+        require(bytes(uri).length > 0, "NFT not preminted or already claimed");
         if (_newTokenId > 0 && _newTokenId != _tokenId) {
           preMints[_newTokenId] = _uri;
           delete preMints[_tokenId];
