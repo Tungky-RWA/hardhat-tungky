@@ -13,7 +13,7 @@ contract BrandNFT is Initializable, ERC721URIStorageUpgradeable, ERC1155HolderUp
     
     Coupon public couponContract;
 
-    mapping(uint256 => string) preMints;
+    mapping(uint256 => string) public preMints;
 
     event BrandNFTInitialized(address indexed owner, address contractAddress);
     event PreMintedNFT(address indexed smartContractWallet, uint256 indexed tokenId, string uri);
